@@ -36,7 +36,7 @@ This meant manually assembling lines using:
 This decision paid off — it exposed subtle parsing issues that would never surface under higher-level I/O routines.
 
 ## Notes & Assumptions
-#### This project was only tested on Ubuntu 24.04 VM, and includes the makefile and build recipes as well output from the command line.
+#### This project was tested exclusively on Ubuntu 24.04, and includes a Makefile, sample input data, build recipes, and captured command-line output.
 
 #### Delimiter is intended to be configurable (via the `#define`) assumed to be '\n' (comma was also tested and worked)
 #### The arena is capped at 32,767 entries. Supplying 32,768 or more unique values returns `NO_SLOTS`.
@@ -113,8 +113,8 @@ This will:
 - Clean all existing builds / binaries / output files
 - Compile all .c files
 - Generate main executable
-- (optional) `run` execute the program with the (nominal) input and output files
-- (optional) `diff` runs the Linux command line tool with the input and output files, and the valid strings should be present
+- (optional) `run` executes the program with the default input/output datasets
+- (optional) `diff` compares input and output files and verifies uniqueness filtering
 
 #### Run the executable
 `make run` 
@@ -210,10 +210,39 @@ Diffing input and output files:
 < 5904-57-31T02:42:58+94:71
 ```
 
+## Testing
+#### This project includes both functional validation tests and structure-level behavior checks to ensure the parser behaves correctly under different input conditions.
+
+Testing Considerations:
+- Correct parsing of valid date-time strings
+- Rejection of malformed or incomplete values
+- Deduplication correctness
+    - Output file contains only valid values and never missing lines except when arena capacity is reached
+
+- Arena fullness behavior (`NO_SLOTS`)
+- Buffered reconstruction and carry-over correctness
+- Unique values: duplicate, but otherwise valid datetime string should result in only one of the duplicate strings being output to file
+
+### Included my tiny python script I used to generate the (valid) datetime strings
+*Sample usage:*
+```
+josh@jsh:/mnt/c/users/josh/repos/unique-date-time-parser$ python3 ./test/gen_date_time_file.py ./data/input/new-generated-date-times.txt 32620
+josh@jsh:/mnt/c/users/josh/repos/unique-date-time-parser$ make clean all && make run && make diff
+Using input dataset: data/input/new-generated-date-times.txt
+Using output dataset: data/output/validated-date-times.txt
+Number of total bytes read: 767005, and total read() calls: 2997
+Diffing input and output files:
+✔ No differences detected
+```
+
+### To make off-nominal data, I simply modified the generated input file, and included my test sets inside the `data/input/` directory:
+- For example: `some-invalid-date-times.txt` (self-explanatory)
+
+#### *You can easily generate a new input datetime string and then change the Makefile to reference your input file.*
 
 ## Performance Notes
 
 ### The system was tested against ~32k unique values
 ### Arena behavior remained stable with full hash spread
-### Buffered parsing remained correct even with small read buffers and intentionally split lines
+### Buffered parsing remained correct even with deliberately small read buffers and intentionally fragmented input lines
 
