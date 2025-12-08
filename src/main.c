@@ -37,6 +37,7 @@ int main(int argc, char *argv[])
     {
         printf("result from open: (input file): %d, (output file) %d\r\n", readFd, writeFd);
         perror("");
+        return -1;
     }
 
     Arena_t arena;
