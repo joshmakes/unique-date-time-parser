@@ -4,7 +4,7 @@
 
 # --- Configuration Variables ---
 # Compiler and flags
-INPUT_FILE  = "data/input/new-generated-date-times.txt"
+INPUT_FILE  = "data/input/generated-date-times.txt"
 OUTPUT_FILE = "data/output/validated-date-times.txt"
 ARGS = $(INPUT_FILE) $(OUTPUT_FILE)
 CC = gcc
