@@ -82,6 +82,7 @@ This decision paid off — it exposed subtle parsing issues that would never sur
 - Deduplication without dynamic structures
 - Solved using a hashed arena + open addressing and probe forward
 
+![Debugging partially missing string -> Lead to use of carry-over buffer](media/debugging_before_carryover_buffer.png)
 
 ## Major Bug – “Sunday Special: Slot 0 Black Hole”
 #### During mass scaling beyond 10k lines, I discovered the arena would store records in slot 0 but `getData()` treated index 0 as invalid
@@ -246,3 +247,5 @@ Diffing input and output files:
 ### Arena behavior remained stable with full hash spread
 ### Buffered parsing remained correct even with deliberately small read buffers and intentionally fragmented input lines
 
+## Demo
+![Demo Animation](media/demo.gif)
