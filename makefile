@@ -4,8 +4,13 @@
 
 # --- Configuration Variables ---
 # Compiler and flags
+INPUT_FILE  = "data/input/generated-date-times.txt"
+OUTPUT_FILE = "data/output/validated-date-times.txt"
+ARGS = $(INPUT_FILE) $(OUTPUT_FILE)
 CC = gcc
 CFLAGS = -Wall -Wextra -std=c11 -O2
+
+# some-invalid-date-times.txt
 
 # Source and Build Directories
 SRC_DIR = src
@@ -30,8 +35,7 @@ all: $(BUILD_DIR) $(EXECUTABLE)
 
 # Target to link all object files into the final executable
 $(EXECUTABLE): $(OBJS)
-	@echo "Linking $@"
-	$(CC) $(OBJS) -o $@ $(LDFLAGS)
+	@$(CC) $(OBJS) -o $@ $(LDFLAGS)
 
 # Rule to build the build directory if it doesn't exist
 $(BUILD_DIR):
@@ -39,19 +43,24 @@ $(BUILD_DIR):
 
 # Generic rule to compile a .c file from src/ into a .o file in build/
 $(BUILD_DIR)/%.o: $(SRC_DIR)/%.c
-	@echo "Compiling $<"
-	$(CC) $(CFLAGS) -I$(SRC_DIR) -c $< -o $@
+	@$(CC) $(CFLAGS) -I$(SRC_DIR) -c $< -o $@
 
 # --- Utility Targets ---
-
 # Clean target: remove all generated files
 clean:
-	@echo "Cleaning up..."
-	$(RM) -r $(BUILD_DIR)
+	@$(RM) -r $(BUILD_DIR)
 
 # Run target
 run:
-	$(echo "Running $(TARGET)...")
-	@$(BUILD_DIR)/$(TARGET)
+	@$(BUILD_DIR)/$(TARGET) $(ARGS)
+
+diff:
+	@echo "Diffing input and output files:"
+	@if diff $(INPUT_FILE) $(OUTPUT_FILE) > /dev/null; then \
+		echo "✔ No differences detected"; \
+	else \
+		echo "✘ Differences found:"; \
+		diff $(INPUT_FILE) $(OUTPUT_FILE) || true; \
+	fi
 
 .PHONY: all clean
