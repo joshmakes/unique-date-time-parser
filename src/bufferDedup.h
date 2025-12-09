@@ -2,4 +2,6 @@
 
 #include "memoryArena.h"
 
-int bufferDedup(char buffer[], char carryOverBuffer[], int *lastLineEnding, Arena_t *arena, int writeFd);
+#include <sys/types.h> // uint32_t
+
+int bufferDedup(char buffer[], char carryOverBuffer[], ssize_t *lastLineEnding, Arena_t *arena, int writeFd);

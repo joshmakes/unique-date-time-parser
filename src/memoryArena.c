@@ -51,14 +51,10 @@ arena_error_code_t allocateArenaSlot(Arena_t *a, const char *string, ssize_t str
     }
 
     if (!a->data)
-    {
         return NO_MEMORY;
-    }
 
     if (a->usedSlots == a->availableSlots)
-    {
         return NO_SLOTS;
-    }
 
     if (strLength >= a->slotSize)
     {
@@ -117,9 +113,7 @@ char const *getData(Arena_t *a, uint32_t index)
 arena_error_code_t destroyArena(Arena_t *a)
 {
     if (a == NULL)
-    {
         return BAD_ARGUMENT;
-    }
 
     a->availableSlots = 0;
     a->slotSize = 0;

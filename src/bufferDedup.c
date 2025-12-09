@@ -8,7 +8,6 @@
 #include <unistd.h> // write()
 #include <fcntl.h>
 #include <stdlib.h>    // malloc()
-#include <sys/types.h> // uint32_t
 #include <limits.h>    // UINT32_MAX
 #include <stdbool.h>   // bool
 
@@ -48,9 +47,9 @@ static void handleCandidate(const char *candidate, size_t len, Arena_t *arena, i
     }
 }
 
-int bufferDedup(char buffer[], char carryOverBuffer[], int *lastLineEnding, Arena_t *arena, int writeFd)
+int bufferDedup(char buffer[], char carryOverBuffer[], ssize_t *lastLineEnding, Arena_t *arena, int writeFd)
 {
-    if (lastLineEnding == NULL)
+    if (lastLineEnding == NULL || *lastLineEnding < 0)
     {
         printf("Invalid lastLineEnding. Returning\r\n");
         return -1;

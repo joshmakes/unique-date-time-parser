@@ -45,37 +45,45 @@ int main(int argc, char *argv[])
 
     char buffer[256];
     memset(&buffer, 0, sizeof(buffer));
-    ssize_t bytesRead = 0;
-    ssize_t totalBytesRead = 0;
-    int totalReads = 0, lastLineEnding = 0;
+    ssize_t bytesRead = 0, totalBytesRead = 0, lastLineEnding = 0;
+    int totalReads = 0;
 
     /// Statically-sized carry over buffer in case
     char carryOverBuffer[MAX_DATE_TIME_STR_LEN + 1];
     memset(carryOverBuffer, 0, sizeof(carryOverBuffer));
 
-    while (1) {
-        bytesRead = read(readFd, buffer, sizeof(buffer));
-        if (bytesRead <= 0) {
+    while (1)
+    {
+        bytesRead = read(readFd, buffer, sizeof(buffer) - 1);
+        if (bytesRead <= 0)
             break;
-        }
 
-        /// Guarantee the buffer is null-terminated
-        carryOverBuffer[MAX_DATE_TIME_STR_LEN] = '\0';
+        buffer[bytesRead] = '\0';
 
         bufferDedup(buffer, carryOverBuffer, &lastLineEnding, &arena, writeFd);
-            
-        memset(carryOverBuffer, 0, sizeof(carryOverBuffer));
-        memcpy(carryOverBuffer, buffer +  lastLineEnding, sizeof(carryOverBuffer));      
-        memset(buffer, 0, sizeof(buffer));
+
+        if (lastLineEnding > bytesRead)
+            lastLineEnding = bytesRead;
+
+        ssize_t remaining = bytesRead - lastLineEnding;
+        if (remaining > 0)
+        {
+            if (remaining > MAX_DATE_TIME_STR_LEN)
+                remaining = MAX_DATE_TIME_STR_LEN;
+
+            memcpy(carryOverBuffer, buffer + lastLineEnding, remaining);
+            carryOverBuffer[remaining] = '\0';
+        }
+        else
+            carryOverBuffer[0] = '\0';
 
         lastLineEnding = 0;
         totalBytesRead += bytesRead;
         totalReads++;
     }
- 
+
     destroyArena(&arena);
 
     printf("Number of total bytes read: %lu, and total read() calls: %d\r\n", totalBytesRead, totalReads);
-    
     return 0;
 }
